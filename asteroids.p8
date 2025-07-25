@@ -12,7 +12,7 @@ __lua__
 
 -- init function
 function _init()
-  version = "0.1.0"
+  version = "0.2.0"
   rocks = {}
   bullets = {}
   
@@ -22,7 +22,7 @@ function _init()
     y = 64,
     spr = 1,       -- sprite
     ang = -3.14/2, -- initial angle (pointing upwards)
-    spd = 10,     -- bullet speed
+    spd = 10,      -- bullet speed
     lives = 3,
     shoot_timer = 0
   }
@@ -48,6 +48,11 @@ function reset_game()
   game_state = "cooldown"
 end
 
+-- calculates the angle towards point 2
+function get_angle(x1, y1, x2, y2)
+  return atan2(x2 - x1, y2 - y1)
+end
+
 -- spawn rock function
 function spawn_rock()
   local rock = {
@@ -61,7 +66,7 @@ function spawn_rock()
     rock.spr = 3 -- roca roja
   end
   
-  -- spawns from outside of the screen
+  -- spawns from off-screen
   local side = flr(rnd(4))
   if side == 0 then -- from above
     rock.x = rnd(128)
@@ -77,11 +82,26 @@ function spawn_rock()
     rock.y = rnd(128)
   end
   
-  -- random direction and speed
-  local ang = rnd(3.14*2) -- random angle in radians
-  local spd = 0.5 + rnd(0.5) -- random speed
-  rock.dx = cos(ang) * spd
-  rock.dy = sin(ang) * spd
+  -- defining two main points A and B (read notes/specification)
+  local target_a = {x=0, y=64}
+  local target_b = {x=127, y=64}
+  
+  -- calculates both directions towards point A and point B, generating a cone
+  local ang1 = get_angle(rock.x, rock.y, target_a.x, target_a.y)
+  local ang2 = get_angle(rock.x, rock.y, target_b.x, target_b.y)
+  
+  -- choosing a random angle INSIDE this cone
+  -- this logic assures it works even if the angles cross the 0|1 point (read notes/specification)
+  local diff = ang2 - ang1
+  if diff > 0.5 then diff -= 1 end
+  if diff < -0.5 then diff += 1 end
+  
+  local final_ang = ang1 + rnd(diff)
+  
+  -- 4. Aplicamos el ángulo y una velocidad aleatoria
+  local spd = 0.5 + rnd(1) -- random speed between 0 and 1
+  rock.dx = cos(final_ang) * spd
+  rock.dy = sin(final_ang) * spd
   
   add(rocks, rock)
 end
@@ -187,7 +207,7 @@ function update_game()
     local bullet = {
       x = player.x + cos(player.ang)*4, -- 4 pixels ahead of the ship
       y = player.y + sin(player.ang)*4,
-      dx = cos(player.ang) * player.spd, -- next position. +speed <-> -sprites and less time to leave the visible screen
+      dx = cos(player.ang) * player.spd, -- next position. (+speed <--> -sprites) and less time to go off-screen
       dy = sin(player.ang) * player.spd,
       spr = 4,
       r = 2 -- hitbox radius
@@ -263,7 +283,7 @@ end
 function draw_game()
   -- draws spaceship
   spr(player.spr, player.x-4, player.y-4)
-  -- draws provisional "cannon" to watch the aim direction
+  -- draws provisional "cannon" to watch the aim direction, 8 is de line size
   line(player.x, player.y, player.x + cos(player.ang)*8, player.y + sin(player.ang)*8, 7)
   
   -- draws bullets
@@ -298,12 +318,12 @@ function draw_game_over()
 end
 __gfx__
 00000000000880000111110008888800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000770000177711088777880000880000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000770001115571188866788000880000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000770000177711088777880000770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000770001115571188866788000770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000007777001111157188888678000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000037777301111117188888878000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000037777301111111188888888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000007777000011111008888880000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000007777000111111008888880000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000770000011110000888800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __gff__
 0001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

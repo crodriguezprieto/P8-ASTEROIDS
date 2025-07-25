@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-07-25
+
+### Changed
+
+- **Reworked Asteroid Spawning Logic:** Completely overhauled the enemy spawning system for a more engaging and fair gameplay experience.
+    - Asteroids no longer travel in a fully random direction, which previously resulted in many of them never entering the screen.
+    - The new system ensures that every spawned asteroid travels towards the gameplay area.
+    - It dynamically calculates a "cone" of possible trajectories aimed towards a central horizontal line on the screen. This guarantees that every asteroid is a potential threat and eliminates wasted off-screen entities.
+- **Comments:** Enhanced some comments.
+
 ## [0.1.0] - 2025-07-24
 
 ### Added
