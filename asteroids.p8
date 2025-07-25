@@ -2,6 +2,14 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 --[[
+  Project: Asteroids
+  Author:  Carlos Rodriguez Prieto
+  Version: 0.2.0
+  Date:    2025-07-25
+  License: MIT
+  GitHub:  https://github.com/crodriguezprieto/
+  
+  -----------------------------------------------------------------
   asteroids type game
   - spaceship: sprite 1, centered, turns on itself.
   - rocks: sprites 2 and 3, spawned from outside screen, random direction.

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2025-07-25
 
+### Added
+
+- **Project Documentation:** Added a comprehensive design specification document detailing core game mechanics, including the PICO-8 angle system and the targeted asteroid spawning logic.
+- **Author Attribution:** Included the author's name in the source code file header.
+
 ### Changed
 
 - **Reworked Asteroid Spawning Logic:** Completely overhauled the enemy spawning system for a more engaging and fair gameplay experience.
