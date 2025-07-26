@@ -4,7 +4,7 @@ __lua__
 --[[
   Project: Asteroids
   Author:  Carlos Rodriguez Prieto
-  Version: 0.2.0
+  Version: 0.2.1
   Date:    2025-07-25
   License: MIT
   GitHub:  https://github.com/crodriguezprieto/
@@ -69,9 +69,9 @@ function spawn_rock()
   
   -- random sprite for any rock
   if rnd(1) > 0.5 then
-    rock.spr = 2 -- roca azul
+    rock.spr = 2 -- blue rock
   else
-    rock.spr = 3 -- roca roja
+    rock.spr = 3 -- red rock
   end
   
   -- spawns from off-screen
@@ -106,8 +106,8 @@ function spawn_rock()
   
   local final_ang = ang1 + rnd(diff)
   
-  -- 4. Aplicamos el ángulo y una velocidad aleatoria
-  local spd = 0.5 + rnd(1) -- random speed between 0 and 1
+  -- 4. applies the angle and random speed
+  local spd = 0.5 + rnd(1) -- random speed between 0 and 0.99
   rock.dx = cos(final_ang) * spd
   rock.dy = sin(final_ang) * spd
   
@@ -203,7 +203,7 @@ end
 
 -- state: gameplay
 function update_game()
-  -- 1. updateing player (spin and shoot)
+  -- 1. updates player (spin and shoot)
   if btn(0) then player.ang -= 0.05 end -- spins left
   if btn(1) then player.ang += 0.05 end -- spins right
   
@@ -289,7 +289,9 @@ function update_game()
 end
 
 function draw_game()
-  -- draws spaceship
+  -- draws spaceship with a trick, pico-8 selects the first pixel on the left top corner
+  -- but we declared the center (x,y) when created the player, so we need to abstract 4 pixels
+  -- from each coordenate for pico-8 to perfectly draw our player. Same later with rocks.
   spr(player.spr, player.x-4, player.y-4)
   -- draws provisional "cannon" to watch the aim direction, 8 is de line size
   line(player.x, player.y, player.x + cos(player.ang)*8, player.y + sin(player.ang)*8, 7)

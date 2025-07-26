@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-07-26
+
+### Changed
+
+- **Improved Code Documentation:** Expanded and improved in-code comments across the codebase, providing detailed explanations for key functions and logic blocks.
+- **Enhanced Code Comprehension:** Improved in-code comments to clarify core logic about the center-based coordinate system and some comments for player and spawning mechanics.
+- **Comment Language:** Translated all remaining code comments from Spanish to English for international consistency and clarity.
+
 ## [0.2.0] - 2025-07-25
 
 ### Added
