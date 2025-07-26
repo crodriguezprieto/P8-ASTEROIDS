@@ -3,7 +3,6 @@
 ### Visual changes
 - **Animations:** Create animations for everything: destroyed rock, destroyed spaceship, game over cinematic.
 - **HP:** Show some kind of hp bar, maybe on the far top right
-- **Animations:** Show lives as single heart sprites instead of the number of lives.
 
 ### New Features
 - **Entire sound pallet:** Including background sound, when shooting, when hit a rock, when spaceship explodes (background sound end), game over sound (after spaceship exploded animation), switch between menu selects sound.
