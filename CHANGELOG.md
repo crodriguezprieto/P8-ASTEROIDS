@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-07-26
+
+### Added
+
+- **New Heart Sprite:** Created and implemented a heart sprite for the new graphical lives display.
+
+### Changed
+
+- **Major HUD Overhaul:** The in-game Heads-Up Display has been completely redesigned for a cleaner and more professional look.
+    - **Graphical Lives Display:** The previous numerical lives counter (`LIVES: 3`) has been replaced with a graphical representation. The game now draws one heart sprite for each life the player has remaining.
+    - **Dynamic Score Display:** The score is now dynamically right-aligned. The "SCORE:" label has been removed for a more minimalist aesthetic, and the number will always stay visible on the right edge of the screen, regardless of its length.
+
+### Removed
+
+- **Old Text-Based HUD:** The previous implementation for displaying lives and score with static text labels has been removed in favor of the new dynamic system.
+
 ## [0.2.1] - 2025-07-26
 
 ### Changed
