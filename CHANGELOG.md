@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-07-28
+
+### Added
+
+- **Rotation Function:** Added a function to rotate the spaceship sprite when turning on itself based on Standard 2D Rotation Matrix: Implements pixel‑level sprite rotation by applying the classical 2×2 rotation matrix (x′ = x·cosθ − y·sinθ, y′ = x·sinθ + y·cosθ) around the sprite center.
+- **Three New Ship Sprites:** Added three new ship sprites for additional visual variety.
+- **DEBUG_CODE:** Added legacy DEBUG_CODE doc for extra code used to debug key features.
+
 ## [0.3.1] - 2025-07-27
 
 ### Changed
