@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Design specifications:** New entry for the rotation algorythm explained and reviewed some texts.
 - **New game logo:** Added custom game logo from several sprites showing the name of the game.
 - **New menu design and new entries:** New entries added: settings and credits. Credits show author's name. Version now added to the bottom left of the main menu.
+- **New spaceship select function:** Now when the player starts a new game it has to choose the spaceship to play with.
 
 ## [0.4.0] - 2025-07-28
 

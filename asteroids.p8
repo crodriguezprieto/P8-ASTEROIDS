@@ -41,6 +41,12 @@ function _init()
   game_state = "menu"
   menu_option = 1 -- 1: start, 2: exit
   settings_option = 1
+
+  -- spaceship selector
+  display_ships = {81,84,87,90,93,145}
+  real_ships    = {64,67,70,73,76,128}
+  sel_ship      = 1
+  ship_selected = false
 end
 
 -- reset game function
@@ -147,6 +153,60 @@ function spawn_rock()
   add(rocks, rock)
 end
 
+-- state: ship_select
+function update_ship_select()
+  local n = #display_ships
+
+  -- left/right arrow to iterate
+  if btnp(0) then
+    sel_ship = sel_ship>1 and sel_ship-1 or n
+  elseif btnp(1) then
+    sel_ship = sel_ship<n and sel_ship+1 or 1
+  end
+
+  if btnp(5) then
+    player.spr    = real_ships[sel_ship]
+    ship_selected = true
+    reset_game()
+  end
+
+  if btnp(4) then
+    game_state="menu"
+  end
+end
+
+function draw_ship_select()
+  -- ship select
+  local title="choose your spaceship"
+  print(title,(128-#title*4)/2,24,7)
+
+  -- carousel params
+  local spacing = 24                  -- margin between spaceships
+  local n       = #display_ships      -- n of spaceships
+  local total_w = (n-1)*spacing + 16  -- total width
+
+  -- calculates an offset X with 2px margin for red border:
+  local off0    = 64 - 8 - (sel_ship-1)*spacing
+  -- calculates off side when all ships cannot be visible on screen at the same time
+  local min_off = -11   -- right: x+18<=127 => off <= -11
+  local max_off =   2   -- left: x-2>=0   => off >=  2
+  local off     = mid(off0, min_off, max_off)
+
+  local y0 = 48
+  for i,id in ipairs(display_ships) do
+    local x = off + (i-1)*spacing
+    -- spaceships pointing up
+    spr_r(id, x, y0, 270, 2, 2)
+    if i == sel_ship then
+      rect(x-2, y0-2, x+17, y0+18, 11)
+    end
+  end
+
+  -- “Back (O)”
+  local back="back (O)"
+  print(back,(128-#back*4)/2,y0+40,7)
+end
+
 -- main update loop (exec 30 times/sec)
 function _update()
   if game_state == "menu" then
@@ -155,6 +215,8 @@ function _update()
     update_settings()
   elseif game_state == "credits" then
     update_credits()
+  elseif game_state=="ship_select" then
+    update_ship_select()
   elseif game_state == "cooldown" then
     update_cooldown()
   elseif game_state == "game" then
@@ -173,6 +235,8 @@ function _draw()
     draw_settings()
   elseif game_state == "credits" then
     draw_credits()
+  elseif game_state=="ship_select" then
+    draw_ship_select()
   elseif game_state == "cooldown" then
     draw_cooldown()
   elseif game_state == "game" then
@@ -193,19 +257,20 @@ function draw_credits()
   local x   = (128 - w) / 2
   local y   = (128 - 6) / 2
 
-  -- multiplicamos time() por 4 para que avance 4 veces más rápido
-  local t = flr(time() * 12)
+  -- increase n = raise speed on changing char colour
+  local n = 12
+  local t = flr(time() * n)
 
   for i=1,len do
-    -- onda hacia la derecha
+    -- changes the colour of the char visually to the right
     local col = ((t - i + 15) % 15) + 1
     print(sub(s, i, i), x + (i-1)*4, y, col)
   end
 end
 
--- 1) define update_credits
+-- update_credits function
 function update_credits()
-  -- al pulsar O volvemos al menú
+  -- pressing x goes back to menu
   if btnp(5) then
     game_state="menu"
   end
@@ -253,7 +318,9 @@ function update_menu()
   -- select pressing x
   if btnp(5) then
     if menu_option == 1 then
-      reset_game() -- starts the game
+      sel_ship      = 1
+      ship_selected = false
+      game_state    = "ship_select"
     elseif menu_option == 2 then
       --settings_option = 1
       game_state = "settings"
@@ -268,7 +335,7 @@ end
 function draw_menu()
    cls()
 
-  -- 1 draws logo from sprites (16 sprites: 8×2) centered
+  -- draws logo from sprites (16 sprites: 8×2) centered
   local tiles_w = 8     -- 8 columns
   local tiles_h = 2     -- 2 rows
   local logo_w  = tiles_w * 8
@@ -486,10 +553,6 @@ function draw_game_over()
   print("game over", 48, 50, 8)
   print("score: "..score, 45, 60, 7)
   print("press o to continue", 25, 80, 7)
-end
-
-function switch_spaceship()
-
 end
 
 __gfx__
