@@ -15,3 +15,4 @@
 
 ### Logic changes/add
 - **HP system:** Right now the spaceship has 3 lives and we're subtracting 1 life everytime a rock hit us. When there's no lifes left game over screen appears. Maybe code some hp system in which everytime a rock hit the spaceship it loses 10 hp. When 3 rocks hit us it's 1 life less. New screen showing Continue?. Score keeps keeping data until no lifes left and then Score summary screen.
+- **Ammo system:** Right now there's no punishment on holding the trigger constantly. Make "limited" ammo. If you hold the trigger ammo will decrease, but it restores itself overtime if you stop shooting, that way the game punishes us for holding the trigger too much time. If you only shoot single shots ammo doesn't decrease.
