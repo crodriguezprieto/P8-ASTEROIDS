@@ -15,7 +15,7 @@ __lua__
   - rocks: sprites 2 and 3, spawned from outside screen, random direction.
   - bullets: sprite 4, 10 bullets every second.
   - lives: 3, you lose each one after hitting a rock.
-  - states: menu, cooldown, gameplay, game over.
+  - states: menu, settings, credits, cooldown, new game, game over.
 --]]
 
 -- init function
@@ -46,6 +46,7 @@ function _init()
   display_ships = {81,84,87,90,93,145,148}
   real_ships    = {64,67,70,73,76,128,131}
   sel_ship      = 1
+  sel_row       = 1   -- 1=carrousel, 2=back
   ship_selected = false
 end
 
@@ -157,21 +158,31 @@ end
 function update_ship_select()
   local n = #display_ships
 
-  -- left/right arrow to iterate
-  if btnp(0) then
-    sel_ship = sel_ship>1 and sel_ship-1 or n
-  elseif btnp(1) then
-    sel_ship = sel_ship<n and sel_ship+1 or 1
+  -- arrows up/down switch between carrousel and going back
+  if btnp(2) then
+    sel_row = 1
+  elseif btnp(3) then
+    sel_row = 2
+  end
+
+  -- left/right arrow to iterate only on carrousel
+  if sel_row==1 then
+    if btnp(0) then
+      sel_ship = sel_ship>1 and sel_ship-1 or n
+    elseif btnp(1) then
+      sel_ship = sel_ship<n and sel_ship+1 or 1
+    end
   end
 
   if btnp(5) then
-    player.spr    = real_ships[sel_ship]
-    ship_selected = true
-    reset_game()
-  end
-
-  if btnp(4) then
-    game_state="menu"
+    if sel_row==1 then
+      player.spr    = real_ships[sel_ship]
+      ship_selected = true
+      reset_game()
+    else
+      sel_row = 1
+      game_state = "menu"
+    end
   end
 end
 
@@ -202,7 +213,7 @@ function draw_ship_select()
   for i,id in ipairs(display_ships) do
     local x = off + (i - 1) * spacing
     spr_r(id, x, y0, 270, 2, 2)
-    if i == sel_ship then
+    if sel_row == 1 and i == sel_ship then
       rect(x - frame, y0 - frame,
            x + sprite_w + frame - 1,  -- -1 porque sprite_w=16 da [0..15]
            y0 + sprite_w + frame - 1,
@@ -211,8 +222,9 @@ function draw_ship_select()
   end
 
   -- back button o=z
-  local back="back (O)"
-    print(back,(128-#back*4)/2,y0+40,7)
+  local back="back"
+  local col = (sel_row==2) and 11 or 7
+  print(back,(128-#back*4)/2,y0+40,col)
 end
 
 -- main update loop (exec 30 times/sec)
@@ -243,7 +255,7 @@ function _draw()
     draw_settings()
   elseif game_state == "credits" then
     draw_credits()
-  elseif game_state=="ship_select" then
+  elseif game_state == "ship_select" then
     draw_ship_select()
   elseif game_state == "cooldown" then
     draw_cooldown()
@@ -258,12 +270,62 @@ end
 --  logic and drawing of each state of the game
 -- =============================================
 
+-- state: credits
+function update_credits()
+  -- pressing x goes back to menu
+  if btnp(5) then
+    game_state="menu"
+  end
+end
+
+-- draw credits
+-- print text with dynamic line break
+function print_wrap(txt, x0, y0, max_x, col)
+  local x, y = x0, y0
+  -- separate words
+  for word in all(split(txt, " ")) do
+    local w = #word * 4
+    -- if doesn't fit and we are not at the begining of the line, line break
+    if x > x0 and x + w > max_x then
+      x = x0
+      y += 6 -- line heigh (6px)
+    end
+    -- print word letter by letter
+    for i = 1, #word do
+      local ch = sub(word, i, i)
+      local ch_col = (ch == "a") and 11 or col
+      print(ch, x, y, ch_col)
+      x += 4
+    end
+    -- print space only if we are at the begining of the line and it fits
+    if x > x0 and x + 4 <= max_x then
+      print(" ", x, y, col)
+      x += 4
+    end
+  end
+end
+
+-- estado: credits
 function draw_credits()
-  local s   = "crodriguezprieto"
-  local len = #s
-  local w   = len * 4
-  local x   = (128 - w) / 2
-  local y   = (128 - 6) / 2
+  cls()
+  
+  local full_txt = "hi! i'm carlos rodriguez prieto and i created this asteroids type game with love in my spare time as a way to get some knowledge of this tiny but powerful engine and to polish some basic and mathematical knowledge applied to gaming. i kindly thank you for trying out my game."
+  local x0, y0 = 2, 2 -- start point
+  local limit = 127   -- max width
+  local col = 7       -- white text colour
+
+  -- full body paint
+  print_wrap(full_txt, x0, y0, limit, col)
+
+  -- calculate where the last finished
+  local lines = ceil((#full_txt * 4) / (limit - x0)) -- aprox.
+  local ty = y0 + lines * 6 + 4
+
+  local colored = "enjoy!"
+  local len = #colored
+  local w = len * 4
+  local x = (128 - w) / 2
+  local y = (128 - 6) / 1.7 -- 6 is single char height
 
   -- increase n = raise speed on changing char colour
   local n = 12
@@ -272,16 +334,21 @@ function draw_credits()
   for i=1,len do
     -- changes the colour of the char visually to the right
     local col = ((t - i + 15) % 15) + 1
-    print(sub(s, i, i), x + (i-1)*4, y, col)
+    print(sub(colored, i, i), x + (i-1)*4, y, col)
   end
-end
 
--- update_credits function
-function update_credits()
-  -- pressing x goes back to menu
-  if btnp(5) then
-    game_state="menu"
-  end
+  spr()
+
+  local year = "2025"
+  local ylen = #year
+  local yw = ylen * 4
+  local yx = (128 - yw) / 2  -- centered
+  local yy = y + 8           -- 8 pixels below name
+
+  local ty = flr(time())
+
+  local year_col = ((ty - 1 + 15) % 15) + 1
+  print(year, yx, yy, year_col)
 end
 
 -- state: settings
@@ -294,19 +361,19 @@ function update_settings()
 
   if btnp(5) then
     if settings_option==1 then 
-      switch_spaceship()
+      --switch_spaceship()
     else game_state="menu" end
   end
 end
 
 function draw_settings()
-  local opts = {"change spaceship", "back"}
+  local opts = {"mamahuevo digo gluglu", "back"}
   for i,txt in ipairs(opts) do
     -- colour
     local col = (settings_option==i) and 8 or 7
     -- width in pixels (every char weights 4 px)
     local w = #txt * 4
-    -- x centered (PICOヌ█➡️8 screen width: 128 px)
+    -- x centered (PICO-8 screen width: 128 px)
     local x = flr((128 - w) / 2)
     -- y starting at 60 and 10 px space between lines
     local y = 60 + (i-1)*10
@@ -343,7 +410,7 @@ end
 function draw_menu()
    cls()
 
-  -- draws logo from sprites (16 sprites: 8れ❎2) centered
+  -- draws logo from sprites (16 sprites: 8x2) centered
   local tiles_w = 8     -- 8 columns
   local tiles_h = 2     -- 2 rows
   local logo_w  = tiles_w * 8
@@ -359,14 +426,14 @@ function draw_menu()
     end
   end
 
-  -- centered menu display
+  -- 1,2,3 centered menu display
   local opts = {"start", "settings", "exit"}
   for i,txt in ipairs(opts) do
     -- colour
     local col = (menu_option==i) and 8 or 7
     -- width in pixels (every char weights 4 px)
     local w = #txt * 4
-    -- x centered (PICOヌ█➡️8 screen width: 128 px)
+    -- x centered (PICO-8 screen width: 128 px)
     local x = flr((128 - w) / 2)
     -- y starting at 60 and 10 px space between lines
     local y = 60 + (i-1)*10
@@ -410,7 +477,7 @@ function draw_cooldown()
   print(num, 62, 40, 8)
 end
 
--- state: gameplay
+-- state: new game
 function update_game()
   -- 1. updates player (spin and shoot)
   if btn(0) then player.ang -= player.rot_speed end
@@ -676,20 +743,21 @@ __gfx__
 0000000000000000000000000000000000000000000000000000000000000000000ddddddddd0000000ddddddddd0000000ddddddddd00000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000bbb0000000000000bbb0000000000000bbb00000000000000000000000
-000000000000000000000000000000000000000000000000000000000000000000000b000b00000000000b000b00000000000b000b0000000000000000000000
-0000000000000000000000000000000000000000000000000000000000000000000000bbb0000000000000bbb0000000000000bbb00000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0bb00bb0088008800cc00cc0066006600aa00aa0077007700ee00ee00000000000000b000b00000000000b000b00000000000b000b0000000000000000000000
+3bbbb77b288887781cccc77cd66667769aaaa77a677776672eeee77e00000000000000bbb0000000000000bbb0000000000000bbb00000000000000000000000
+3bbbbb7b288888781ccccc7cd66666769aaaaa7a677777672eeeee7e000000000000000000000000000000000000000000000000000000000000000000000000
+3bbbbbbb288888881cccccccd66666669aaaaaaa677777772eeeeeee000000000000000000000000000000000000000000000000000000000000000000000000
+03bbbbb00288888001ccccc00d66666009aaaaa00677777002eeeee00000000000000000000000000000bbbbbbb000000000bbbbbbb000000000000000000000
+003bbb0000288800001ccc0000d66600009aaa0000677700002eee00000000000000000000000000000b0000000b0000000b0000000b00000000000000000000
+0003b000000280000001c000000d60000009a000000670000002e000000000000000000000000000000b0000000b0000000b0000000b00000000000000000000
 000000000000000000000000000000000000000000000000000000000000000000000000000000000000bbbbbbb000000000bbbbbbb000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000b0000000b0000000b0000000b00000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000b0000000b0000000b0000000b00000000000000000000
-000000000000000000000000000000000000000000000000000000000000000000000000000000000000bbbbbbb000000000bbbbbbb000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bbbbbbbbbbbbb000000000000000000
-000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000b0000000000000b00000000000000000
-000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000b0000000000000b00000000000000000
-0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bbbbbbbbbbbbb000000000000000000
+044004400ff00ff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+544447746ffff77f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+544444746fffff7f000000000000000000000000000000000000000000000000000000000000000000000000000000000bbbbbbbbbbbbb000000000000000000
+544444446fffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000b0000000000000b00000000000000000
+0544444006fffff000000000000000000000000000000000000000000000000000000000000000000000000000000000b0000000000000b00000000000000000
+00544400006fff00000000000000000000000000000000000000000000000000000000000000000000000000000000000bbbbbbbbbbbbb000000000000000000
+000540000006f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 00000000001e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001e000000000000001e0000000f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
