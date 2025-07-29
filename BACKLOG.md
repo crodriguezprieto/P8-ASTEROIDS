@@ -11,7 +11,8 @@
 - **Nightmare mode:** All rocks aim towards the player.
 - **Heart asteroids:** Random spawn of heart shape like asteroids, destroying it gives the player a extra live.
 - **Powerups:** Random spawn of powerups, shooting it gives the player the powerup: a shield that destroys incoming asteroids, dual shots, etc.
-- **Score table** Enable to register your name with your total points at the end of the game.
+- **Score table:** Enable to register your name with your total points at the end of the game (duno if posible).
+- **Secret level:** Develop secret lvl with key combo. 
 
 ### Logic changes/add
 - **HP system:** Right now the spaceship has 3 lives and we're subtracting 1 life everytime a rock hit us. When there's no lifes left game over screen appears. Maybe code some hp system in which everytime a rock hit the spaceship it loses 10 hp. When 3 rocks hit us it's 1 life less. New screen showing Continue?. Score keeps keeping data until no lifes left and then Score summary screen.

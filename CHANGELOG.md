@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-07-30
+
+### Added
+- **New credits:** Set credits as an option in the main menu and filled with cheerful message and played around with some tricks with colours in texts.
+
 ## [0.5.0] - 2025-07-28
 
 ### Added
