@@ -308,7 +308,7 @@ end
 
 -- draw credits
 function draw_credits()
-  local full_txt = "hi! i'm charly and i created this asteroids type mini game with love in my spare time as a way to get some knowledge of this tiny but powerful engine and to polish some basic and mathematical knowledge applied to gaming. i kindly thank you for trying out my game."
+  local full_txt = "hi! i'm charly and i created this asteroids type mini game with love in my spare time as a way to get some knowledge of this tiny but powerful engine and to polish some basic and math knowledge applied to gaming. i kindly thank you for trying out my game."
   local x0, y0 = 2, 2 -- start point
   local limit = 127   -- max width
   local col = 7       -- white text colour
