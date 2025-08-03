@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New sprite designs:** New types of bullets, new powerup sprites and 4 new sprites for common asteroids.
 
 ### Changed
-- **Changed file name:** Renamed DESIGN_SPEC to TECHNICAL_DOCUMENTATION.
+- **Changed file name:** Renamed  DESIGN_SPEC to TECHNICAL_DOCUMENTATION and with an update about info about all the types of asteroids.
 
 ## [0.6.0] - 2025-07-30
 
