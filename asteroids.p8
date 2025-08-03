@@ -32,9 +32,13 @@ function _init()
     spd = 5,     -- bullet speed
     lives = 5,
     shoot_timer = 0,
-    triple_shot   = false,
+    triple_shot   = false, -- triple shot mode
     triple_timer  = 0,
-    shield = false
+    shield = false, -- shield up
+    helix = false,  -- helix mode
+    helix_timer = 0,
+    helix_fire = 0,
+    helix_ang = 0
   }
   
   score = 0
@@ -114,7 +118,7 @@ end
 function spawn_rock()
   local rock = { r = 4 }
   local prob = flr(rnd(100))  -- 0..99
-    
+
   if prob == 0 then -- 1% crown, special move
     rock.spr = 45
   elseif prob <= 5 then -- 5% powerups (triple fire, shield up, heal up)
@@ -615,6 +619,38 @@ function update_game()
     end
   end
 
+  -- power-up helix:
+  if player.helix then
+    player.helix_timer -= 1/30
+    if player.helix_timer <= 0 then
+      player.helix = false
+    else
+      -- fire rate
+      player.helix_fire -= 1/30
+      if player.helix_fire <= 0 then
+        player.helix_fire = 0.05 -- shoots every 0.05s
+        -- spawn 8 projectiles
+        for i=0,7 do
+          local ang = (player.helix_ang + i*45)/360
+          local ca, sa = cos(ang), sin(ang)
+          -- origin point around the ship
+          local bx = player.x+16 + ca*8 - 4
+          local by = player.y+16 - sa*8 - 4
+          add(bullets, {
+            x   = bx,
+            y   = by,
+            dx  = ca*player.spd,
+            dy  = -sa*player.spd,
+            spr = 5,
+            r   = 2
+          })
+        end
+          -- rotation
+          player.helix_ang = (player.helix_ang + 10) % 360
+      end
+    end
+  end
+
   -- 2. updating bullets
   for b in all(bullets) do
     b.x += b.dx
@@ -642,16 +678,20 @@ function update_game()
     for r in all(rocks) do
       local dist_sq = (b.x+4-r.x)^2 + (b.y+4-r.y)^2 -- +4 to get the center of the bullet
       if dist_sq < (b.r+r.r)^2 then
-        
         -- heal up
         if r.spr == 29 then
           if player.lives < 5 then
             player.lives += 1
           end
+        elseif r.spr == 45 then
+          player.helix = true
+          player.helix_timer = 3
         -- triple shot
         elseif r.spr == 46 then
           player.triple_shot  = true
           player.triple_timer = 10
+          player.helix_fire  = 0
+          player.helix_ang   = 0 
         -- shield up
         elseif r.spr == 47 then
           player.shield = true
@@ -700,6 +740,9 @@ function update_game()
         if player.lives < 5 then
           player.lives += 1
         end
+      elseif r.spr == 45 then
+        player.helix = true
+        player.helix_timer = 3
       -- triple shot
       elseif r.spr == 46 then
         player.triple_shot  = true
@@ -754,8 +797,8 @@ function draw_game()
   -- draws ship
   spr_r(player.spr, player.x, player.y, player.ang, 4, 4)
 
+  -- draws shield
   if player.shield then
-    --circ(player.x+16, player.y+16, player.r+4, 12)
     local t = sin(time()*4)
     circ(player.x+16, player.y+16, player.r+4 + t, 12)
   end
@@ -789,10 +832,18 @@ function draw_game()
   -- abstracts score width to the final position to right align it
   print(score_str, 126 - score_width, 2, 7)
 
-  -- draws triple_shot cooldown if active
+  -- draws triple_shot/helix cooldowns if active
+  local y = 10
+  -- primero el triple shot, si está activo
   if player.triple_shot then
-    local t = flr(player.triple_timer)  -- segundos enteros restantes
-    print("triple shot: "..t, 2, 10, 11)
+    local t = flr(player.triple_timer) +1
+    print("triple shot: "..t, 2, y, 11)
+    y += 9
+  end
+  -- luego helix, si está activo
+  if player.helix then
+    local t = flr(player.helix_timer) +1
+    print("helix: "..t, 2, y, 11)
   end
 end
 
@@ -812,10 +863,10 @@ end
 __gfx__
 06506600000560000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000088008800000000000006000
 60005660066655000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000288887780000000000006000
-006005600565000000088000000cc000000bb0000000000000000000000000000000000000000000000000000000000000000000288888780070070000057500
-56660000000006660086980000c71c0000b73b000000000000000000000000000000000000000000000000000000000000000000288888880007700000677760
-66650050066600550089980000c11c0000b33b000000000000000000000000000000000000000000000000000000000000000000028888800007700000057500
-065506600066500000088000000cc000000bb0000000000000000000000000000000000000000000000000000000000000000000002888000070070000006000
+006005600565000000088000000cc000000bb0000009900000000000000000000000000000000000000000000000000000000000288888780070070000057500
+56660000000006660086980000c71c0000b73b000097890000000000000000000000000000000000000000000000000000000000288888880007700000677760
+66650050066600550089980000c11c0000b33b000098890000000000000000000000000000000000000000000000000000000000028888800007700000057500
+065506600066500000088000000cc000000bb0000009900000000000000000000000000000000000000000000000000000000000002888000070070000006000
 00000500000056600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000280000000000000006000
 06505600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00660600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000088008800000000000000000
