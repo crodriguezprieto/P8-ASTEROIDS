@@ -33,7 +33,8 @@ function _init()
     lives = 5,
     shoot_timer = 0,
     triple_shot   = false,
-    triple_timer  = 0
+    triple_timer  = 0,
+    shield = false
   }
   
   score = 0
@@ -126,7 +127,6 @@ function spawn_rock()
       rock.spr = 34
     end
   else
-
     local rest = ((prob - 16) % 4) + 1
     if rest == 1 then
       rock.spr = 0
@@ -173,10 +173,11 @@ function spawn_rock()
   
   -- 4. applies the angle and random speed
   local spd = 0
-  if (rock.r == 8) then
-    spd = 0.5 + rnd(1) -- random speed between 0.5 and 0.99
-  else
+  if (rock.r == 4) then
     spd = 0.5 + rnd(2) -- random speed between 0.5 and 1.99
+  else
+    -- powerups and bigrocks
+    spd = 0.5 + rnd(1) -- random speed between 0.5 and 0.99
   end
 
   rock.dx = cos(final_ang) * spd
@@ -642,15 +643,18 @@ function update_game()
       local dist_sq = (b.x+4-r.x)^2 + (b.y+4-r.y)^2 -- +4 to get the center of the bullet
       if dist_sq < (b.r+r.r)^2 then
         
-        -- heal up rock
+        -- heal up
         if r.spr == 29 then
           if player.lives < 5 then
             player.lives += 1
           end
-        -- triple shot rock
+        -- triple shot
         elseif r.spr == 46 then
           player.triple_shot  = true
           player.triple_timer = 10
+        -- shield up
+        elseif r.spr == 47 then
+          player.shield = true
         -- if bigrock, divide it in 2 8x8 rocks
         elseif r.r == 8 then 
           -- 1, 2 or 3 rock spawns to random angles
@@ -691,20 +695,28 @@ function update_game()
     local dist_sq = (player.x+16-r.x)^2 + (player.y+16-r.y)^2 -- (a² + b² = c²)
     if dist_sq < (player.r+r.r)^2 then -- player radius is 4 atm
       
+      -- heal up
       if r.spr == 29 then
         if player.lives < 5 then
           player.lives += 1
         end
+      -- triple shot
       elseif r.spr == 46 then
         player.triple_shot  = true
         player.triple_timer = 10
-      elseif r.r == 8 then
-        player.lives -= 2
+      -- shield up
+      elseif player.shield then
+        player.shield = false
       else
-        player.lives -= 1
+        -- if no shield, default damage
+        if r.r == 8 then
+          player.lives -= 2
+        else
+          player.lives -= 1
+        end
       end
+      del(rocks, r)
 
-      del(rocks, r) -- delete rock that hit us
       
       -- future update: add sound effect and animation
       -- sfx(0)
@@ -741,6 +753,12 @@ function draw_game()
 
   -- draws ship
   spr_r(player.spr, player.x, player.y, player.ang, 4, 4)
+
+  if player.shield then
+    --circ(player.x+16, player.y+16, player.r+4, 12)
+    local t = sin(time()*4)
+    circ(player.x+16, player.y+16, player.r+4 + t, 12)
+  end
 
   -- draws bullets
   for b in all(bullets) do
