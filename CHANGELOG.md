@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Bigger rocks:** New 16x16 rock type added (10% spawn rate). It has the ability to split itself in 2 or more 8x8 ordinary asteroids when destroyed.
-- **Triple fire rate:** New 8x8 rock type added (5% spawn rate). When destroyed, player gets triple shot for 10 seconds.
-- **Shield up:** New 8x8 rock type added (5% spawn rate). Protects the player against one rock or big rock, then it dissapears.
+- **Triple shot:** New 8x8 rock type added (5% spawn rate). When destroyed, player gets triple shot for 10 seconds.
+- **Shield up:** New 8x8 rock type added (5% spawn rate). Protects the player against one rock or big rock, it dissapears when destroyed.
 - **Heal up:** New 8x8 heart rock type added (5% spawn rate). When destroyed or collisioned, it gives the player an extra heart if lives < 5.
 - **Helix power up:** New 8x8 rock type added (1/100 spawn rate). When destroyed, it unleashes a spiraling salvo of 8 projectiles that rotate outward in a perfect helix parttern for 3 seconds.
 - **New sprite designs:** New types of bullets, new powerup sprites and 4 new sprites for common asteroids.
