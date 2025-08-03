@@ -5,17 +5,13 @@ __lua__
   Project: Asteroids
   Author:  Carlos Rodriguez Prieto
   Version: 0.7.0
-  Date:    2025-07-30
+  Date:    2025-08-03
   License: MIT
   GitHub:  https://github.com/crodriguezprieto/
   
   -----------------------------------------------------------------
   asteroids type game
-  - spaceship: sprite 1, centered, turns on itself.
-  - rocks: sprites 2 and 3, spawned from outside screen, random direction.
-  - bullets: sprite 4, 10 bullets every second.
-  - lives: 3, you lose each one after hitting a rock.
-  - states: menu, settings, credits, cooldown, new game, game over.
+  - updating soon
 --]]
 
 -- init function
@@ -24,6 +20,7 @@ function _init()
   rocks = {}
   bullets = {}
   POWERUPS = {46,47,29}
+
   -- spaceship
   player = {
     x = 48,
@@ -32,9 +29,11 @@ function _init()
     ang = 270,   -- initial angle (pointing upwards)
     rot_speed = 12, -- rotation speed
     spr = 64,    -- 64, 67, 70, 73, 76, 128
-    spd = 4,     -- bullet speed
+    spd = 5,     -- bullet speed
     lives = 5,
-    shoot_timer = 0
+    shoot_timer = 0,
+    triple_shot   = false,
+    triple_timer  = 0
   }
   
   score = 0
@@ -542,38 +541,77 @@ function update_game()
   player.shoot_timer -= 1/30
 
   -- 2. updates bullets if shoot
-  if btn(5) and player.shoot_timer<=0 then
-    -- fire rate
-    player.shoot_timer = 3/30
-    
-    -- BULLET POSITION
-    -- 1) t pico-8 angle system (0-1)
-    local t  = player.ang/360
-    local ca, sa = cos(t), sin(t) -- takes player.angle's cos/sen
+  if btn(4) and player.shoot_timer <= 0 then
+    local base_period = 3/30         -- default fire rate (10 bullets per second)
+    -- power up
+    if player.triple_shot then
+      player.shoot_timer = base_period / 1.3 -- fire rate x1.2 (12 bullets sec)
+    else
+      player.shoot_timer = base_period
+    end
 
-    -- 2) takes ship's center (32x32px -> x+16, y+16)
+    -- position and angle
+    local t = player.ang/360
+    local ca, sa = cos(t), sin(t)
     local cx, cy = player.x+16, player.y+16
-
-    -- 3) ship's tip 8px far from its center to the player.ang direction
     local tipx = cx + ca*8
     local tipy = cy - sa*8
+    local bx, by = tipx - 4, tipy - 4
+    local dx, dy = ca*player.spd, -sa*player.spd
 
-    -- 4) center the 8x8 bullet (-4px)
-    local bx = tipx - 4
-    local by = tipy - 4
+    -- default centered shots
+    add(bullets, { x=bx, y=by, dx=dx, dy=dy, spr=2, r=2 })
 
-    -- 5) speed's on the same direction
-    local dx = ca * player.spd
-    local dy = -sa * player.spd
+    -- if triple_shot power up is active, two new shots spawn from left and right
+    if player.triple_shot then
+      -- perpendicular vector
+    local pvx =  sa
+    local pvy =  ca
 
+    -- side distance from axis
+    local lat_off = 12
+
+    -- distance aft from the center to the stern (approx. half the ship)
+    local back_off = 4
+
+    -- ship's center
+    local cx, cy = player.x+16, player.y+16
+    -- angle and front vector normaliced
+    local t = player.ang/360
+    local ca, sa = cos(t), sin(t)
+    local fx, fy = -ca, sa
+
+    local base_x = cx + fx*back_off
+    local base_y = cy + fy*back_off
+
+    local y1x = base_x + pvx*lat_off
+    local y1y = base_y + pvy*lat_off
+
+    local y2x = base_x - pvx*lat_off
+    local y2y = base_y - pvy*lat_off
+
+    -- bullet speed
+    local dx, dy = ca*player.spd, -sa*player.spd
+
+    -- blue bullet
     add(bullets, {
-      x   = bx,
-      y   = by,
+      x   = y1x - 4,
+      y   = y1y - 4,
       dx  = dx,
       dy  = dy,
-      spr = 2,
+      spr = 3,
       r   = 2
     })
+    -- green bullet
+    add(bullets, {
+      x   = y2x - 4,
+      y   = y2y - 4,
+      dx  = dx,
+      dy  = dy,
+      spr = 4,
+      r   = 2
+    })
+    end
   end
 
   -- 2. updating bullets
@@ -609,21 +647,28 @@ function update_game()
           if player.lives < 5 then
             player.lives += 1
           end
+        -- triple shot rock
+        elseif r.spr == 46 then
+          player.triple_shot  = true
+          player.triple_timer = 10
         -- if bigrock, divide it in 2 8x8 rocks
         elseif r.r == 8 then 
           -- 1, 2 or 3 rock spawns to random angles
           local n_rnd_rocks = flr(rnd(3)) + 2
           for i=1,n_rnd_rocks do
-            local a   = rnd(1) -- angle
-            local spd = 0.5 + rnd(2)    -- random spd
+            local a   = rnd(1)
+            local spd = 0.5 + rnd(2)
+
+            local dx = cos(a)*spd
+            local dy = sin(a)*spd
 
             local child = {
               r   = 4,
               spr = SMALL_ROCK_SPR[1 + flr(rnd(#SMALL_ROCK_SPR))],
-              x   = r.x,
-              y   = r.y,
-              dx  = cos(a) * spd,
-              dy  = sin(a) * spd
+              x   = r.x + dx,
+              y   = r.y + dy,
+              dx  = dx,
+              dy  = dy
             }
             add(rocks, child)
           end
@@ -650,22 +695,33 @@ function update_game()
         if player.lives < 5 then
           player.lives += 1
         end
+      elseif r.spr == 46 then
+        player.triple_shot  = true
+        player.triple_timer = 10
       elseif r.r == 8 then
         player.lives -= 2
       else
         player.lives -= 1
       end
-        del(rocks, r) -- delete rock that hit us
-        
-        -- future update: add sound effect and animation
-        -- sfx(0)
-        
-        if player.lives <= 0 then
-          game_state = "game_over"
-        end
+
+      del(rocks, r) -- delete rock that hit us
+      
+      -- future update: add sound effect and animation
+      -- sfx(0)
+      
+      if player.lives <= 0 then
+        game_state = "game_over"
+      end
     end
   end
   
+  if player.triple_shot then
+    player.triple_timer -= 1/30
+    if player.triple_timer <= 0 then
+      player.triple_shot = false
+    end
+  end
+
   -- 5. rock spawn
   spawn_timer -= 2/30
   if spawn_timer <= 0 then
@@ -675,7 +731,6 @@ function update_game()
     for i=1, num_to_spawn do
       spawn_rock()
     end
-    
     spawn_timer = 1 -- reset timer to 1 sec
   end
 end
@@ -695,10 +750,10 @@ function draw_game()
   -- draws rocks
   for r in all(rocks) do
     if r.r == 8 then
-      -- 16れ❎16
+      -- 16x16
       spr(r.spr, r.x - 8, r.y - 8, 2, 2)
     else
-      --  8れ❎8
+      --  8x8
       spr(r.spr, r.x - 4, r.y - 4)
     end
   end
@@ -715,6 +770,12 @@ function draw_game()
   local score_width = #score_str * 4 -- each char width is 4 pixels
   -- abstracts score width to the final position to right align it
   print(score_str, 126 - score_width, 2, 7)
+
+  -- draws triple_shot cooldown if active
+  if player.triple_shot then
+    local t = flr(player.triple_timer)  -- segundos enteros restantes
+    print("triple shot: "..t, 2, 10, 11)
+  end
 end
 
 -- estado: game over

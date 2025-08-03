@@ -8,11 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.0] - 2025-07-03
 
 ### Added
-- **DONEBigger rocks:** New 16x16 rock type added (10% spawn rate). It has the ability to split itself in 2 8x8 pieces when destroyed.
-- **TODO Triple fire rate rocks:** New 8x8 rock type added (5% spawn rate). When destroyed, it triplicates the player's firerate for 15 seconds.
+- **Bigger rocks:** New 16x16 rock type added (10% spawn rate). It has the ability to split itself in 2 8x8 pieces when destroyed.
+- **Triple fire rate rocks:** New 8x8 rock type added (5% spawn rate). When destroyed, two more fire rates spawn for 10 seconds.
 - **TODO Shield up rocks:** New 8x8 rock type added (5% spawn rate). Protects the player against one rock or big rock, then it dissapears.
-- **DONEHeal up rocks:** New 8x8 heart rock type added (5% spawn rate). When destroyed, it gives the player an extra heart if < 5.
-- **Super duper special type sheet rocks:** New 8x8 rock type added (1/100 spawn rate). When destroyed, it doubles the player's firerate for 15 seconds.
+- **Heal up rocks:** New 8x8 heart rock type added (5% spawn rate). When destroyed or collisioned, it gives the player an extra heart if lives < 5.
+- **Ultimate move:** New 8x8 rock type added (1/100 spawn rate). When destroyed, it doubles the player's firerate for 15 seconds.
 
 ### Changed
 - **Changed file name:** Renamed DESIGN_SPEC to TECHNICAL_DOCUMENTATION.
