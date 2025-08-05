@@ -20,7 +20,7 @@ function _init()
   rocks = {}
   bullets = {}
   POWERUPS = {46,47,29}
-
+  game_start_time = 0
   -- spaceship
   player = {
     x = 48,
@@ -514,7 +514,8 @@ function update_cooldown()
   cooldown_timer -= 1/30 -- subtract a frametime
   if cooldown_timer <= 0 then
     game_state = "game"
-    
+    game_start_time = time()
+
     -- 10 init rocks spawn
     for i = 1, 10 do
       spawn_rock()
@@ -766,6 +767,8 @@ function update_game()
       
       if player.lives <= 0 then
         game_state = "game_over"
+        game_total_time = time() - game_start_time
+        game_state = "game_over"
       end
     end
   end
@@ -836,14 +839,34 @@ function draw_game()
   local y = 10
   -- primero el triple shot, si está activo
   if player.triple_shot then
-    local t = flr(player.triple_timer) +1
+    local t = flr(player.triple_timer)
     print("triple shot: "..t, 2, y, 11)
     y += 9
   end
   -- luego helix, si está activo
   if player.helix then
-    local t = flr(player.helix_timer) +1
+    local t = flr(player.helix_timer)
     print("helix: "..t, 2, y, 11)
+  end
+
+  -- draws time elapsed to the bottom right
+  do
+    local elapsed = time() - game_start_time
+    local mins    = flr(elapsed/60)
+    local secs    = flr(elapsed) % 60
+    local ms      = flr((elapsed - flr(elapsed)) * 1000)
+
+    -- format with zero the left part
+    local ms_str  = (ms<10 and "00"..tostr(ms))
+                   or (ms<100 and "0"..tostr(ms))
+                   or tostr(ms)
+    local sec_str = (secs<10 and "0"..tostr(secs)) or tostr(secs)
+    local min_str = (mins<10 and "0"..tostr(mins)) or tostr(mins)
+
+    local timer_str = min_str..":"..sec_str..":"..ms_str
+    local w = #timer_str * 4
+    
+    print(timer_str, 128 - w, 122, 7)
   end
 end
 

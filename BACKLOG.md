@@ -6,7 +6,6 @@
 - **Animations:** Create animations for everything: main menu alien, bullets against rocks, bullets again powerups, rocks against the ship, destroyed spaceship.
 - **Entire sound pallet:** Including main menu song, gameplay song, shooting, destroying rocks, picking powerups, damaging ship, game over sound (after spaceship exploded animation), switch between options sound and maybe a song for the credits.
 
-
 ### Optional
 - **Nightmare mode:** All rocks aim towards the player.
 - **Continue?:** Continue? screen after beated with 5 seconds cooldown to choose yes or no. Yes to reset no to go back to the main menu. **This is important**.
