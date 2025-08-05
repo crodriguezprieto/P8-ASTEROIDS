@@ -4,8 +4,8 @@ __lua__
 --[[
   Project: Asteroids
   Author:  Carlos Rodriguez Prieto
-  Version: 0.7.0
-  Date:    2025-08-03
+  Version: 0.8.0
+  Date:    2025-08-
   License: MIT
   GitHub:  https://github.com/crodriguezprieto/
   
@@ -16,7 +16,7 @@ __lua__
 
 -- init function
 function _init()
-  version = "0.7.0"
+  version = "0.8.0"
   rocks = {}
   bullets = {}
   POWERUPS = {46,47,29}
@@ -224,7 +224,7 @@ end
 
 function draw_ship_select()
   -- ship select
-  local title="choose your spaceship"
+  local title="select your spaceship"
   print(title,(128-#title*4)/2,24,7)
 
   -- carousel params
@@ -259,7 +259,7 @@ function draw_ship_select()
 
   -- back button o=z
   local back="back"
-  local col = (sel_row==2) and 11 or 7
+  local col = (sel_row==2) and 8 or 7
   print(back,(128-#back*4)/2,y0+40,col)
 end
 
@@ -793,6 +793,21 @@ function update_game()
   end
 end
 
+-- format mm:ss:ms
+function format_time(t)
+  local mins = flr(t/60)
+  local secs = flr(t) % 60
+  local ms   = flr((t - flr(t)) * 1000)
+
+  local min_str = (mins<10 and "0"..tostr(mins) or tostr(mins))
+  local sec_str = (secs<10 and "0"..tostr(secs) or tostr(secs))
+  local ms_str  = (ms<10   and "00"..tostr(ms))
+                or (ms<100 and "0"..tostr(ms))
+                or tostr(ms)
+
+  return min_str..":"..sec_str..":"..ms_str
+end
+
 function draw_game()
   -- draws map
   map(0, 0, 0, 0, 16, 16)
@@ -821,7 +836,7 @@ function draw_game()
       spr(r.spr, r.x - 4, r.y - 4)
     end
   end
-  
+
   -- draws HUD
   -- draws dynamic lives (left)
   print("lives:", 2, 2, 7) -- (2, 2) to make room
@@ -837,37 +852,23 @@ function draw_game()
 
   -- draws triple_shot/helix cooldowns if active
   local y = 10
-  -- primero el triple shot, si está activo
+  -- triple shot first
   if player.triple_shot then
     local t = flr(player.triple_timer)
     print("triple shot: "..t, 2, y, 11)
     y += 9
   end
-  -- luego helix, si está activo
+  -- then helix
   if player.helix then
     local t = flr(player.helix_timer)
     print("helix: "..t, 2, y, 11)
   end
 
   -- draws time elapsed to the bottom right
-  do
-    local elapsed = time() - game_start_time
-    local mins    = flr(elapsed/60)
-    local secs    = flr(elapsed) % 60
-    local ms      = flr((elapsed - flr(elapsed)) * 1000)
-
-    -- format with zero the left part
-    local ms_str  = (ms<10 and "00"..tostr(ms))
-                   or (ms<100 and "0"..tostr(ms))
-                   or tostr(ms)
-    local sec_str = (secs<10 and "0"..tostr(secs)) or tostr(secs)
-    local min_str = (mins<10 and "0"..tostr(mins)) or tostr(mins)
-
-    local timer_str = min_str..":"..sec_str..":"..ms_str
-    local w = #timer_str * 4
-    
-    print(timer_str, 128 - w, 122, 7)
-  end
+  local elapsed = time() - game_start_time
+  local timer_str = format_time(elapsed)
+  local tw = #timer_str * 4
+  print(timer_str, 128 - tw, 122, 7)
 end
 
 -- estado: game over
@@ -878,9 +879,15 @@ function update_game_over()
 end
 
 function draw_game_over()
-  print("game over", 48, 50, 8)
-  print("score: "..score, 45, 60, 7)
-  print("press o to continue", 25, 80, 7)
+  local game_over, total_score, time, press_o = "game over", "score: ", "time: ", "press o to continue"
+  print(game_over, (128 - #game_over*4)/2, 50, 8)
+  -- score
+  print(total_score..score, (128 - #(total_score..score)*4)/2, 60, 7)
+  -- time
+  local timer_str = format_time(game_total_time)
+  print(time..timer_str, (128 - #(time..timer_str)*4)/2, 70, 7)
+  -- continue
+  print(press_o, 25, 80, 7)
 end
 
 __gfx__
